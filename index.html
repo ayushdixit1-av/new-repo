@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For Varsha ❤️</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: black;
+  color: white;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* 🌌 Stars */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* Center */
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hidden { display: none; }
+
+button {
+  padding: 12px 25px;
+  font-size: 18px;
+  border-radius: 25px;
+  border: none;
+  margin: 10px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #ff4b5c, #ff6a88);
+  color: white;
+}
+
+/* Shayari */
+#shayari {
+  font-size: 24px;
+  min-height: 60px;
+  width: 80%;
+}
+
+/* Mini Game */
+.heart {
+  position: fixed;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+/* Fireworks */
+.firework {
+  position: fixed;
+  font-size: 20px;
+  animation: explode 1s linear forwards;
+}
+@keyframes explode {
+  to { transform: translateY(-300px) scale(2); opacity: 0; }
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<audio id="music" loop>
+  <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3">
+</audio>
+
+<!-- Intro -->
+<div id="intro" class="center">
+  <h1>Hey Varsha 💖</h1>
+  <p>This is something from my heart...</p>
+  <button onclick="start()">Start 💫</button>
+</div>
+
+<!-- Shayari -->
+<div id="letter" class="hidden center">
+  <div id="shayari"></div>
+</div>
+
+<!-- Mini Game -->
+<div id="miniGame" class="hidden center">
+  <h2>Varsha ❤️ Tap 5 Hearts Quickly</h2>
+  <p>Score: <span id="score">0</span></p>
+</div>
+
+<!-- Proposal -->
+<div id="proposal" class="hidden center">
+  <h1>Varsha, Will You Marry me ? 💍❤️</h1>
+  <button onclick="yes()">YES 😍</button>
+  <button id="no" onmouseover="moveNo()">NO 😢</button>
+</div>
+
+<script>
+/* 🌌 Stars */
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars = [];
+for(let i=0;i<150;i++){
+  stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height});
+}
+setInterval(()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="white";
+  stars.forEach(s=>ctx.fillRect(s.x,s.y,2,2));
+},50);
+
+/* Start */
+function start(){
+  intro.classList.add("hidden");
+  letter.classList.remove("hidden");
+  music.play();
+  showShayari();
+}
+
+/* 💌 Shayari */
+let shayariList = [
+ "Varsha... tum meri zindagi ki sabse khoobsurat kahani ho 💖",
+ "Tumhari muskaan meri duniya hai 🌸",
+ "Har pal bas tumhara saath chahiye 🫶",
+ "Tum ho toh sab kuch hai... tum nahi toh kuch bhi nahi ❤️",
+ "Aur aaj... main tumse ek baat kehna chahta hoon 💫"
+];
+
+let i=0;
+function showShayari(){
+  if(i < shayariList.length){
+    document.getElementById("shayari").innerText = shayariList[i++];
+    setTimeout(showShayari, 2500);
+  } else {
+    startMiniGame();
+  }
+}
+
+/* 🎮 Small Game */
+let score = 0;
+function startMiniGame(){
+  letter.classList.add("hidden");
+  miniGame.classList.remove("hidden");
+  spawnHeart();
+}
+
+function spawnHeart(){
+  let h = document.createElement("div");
+  h.innerHTML = "❤️";
+  h.className = "heart";
+  h.style.left = Math.random()*90 + "vw";
+  h.style.top = Math.random()*90 + "vh";
+
+  h.onclick = () => {
+    score++;
+    document.getElementById("score").innerText = score;
+    h.remove();
+    if(score >= 5){
+      showProposal();
+    } else {
+      spawnHeart();
+    }
+  };
+
+  document.body.appendChild(h);
+}
+
+/* 💍 Proposal */
+function showProposal(){
+  miniGame.classList.add("hidden");
+  proposal.classList.remove("hidden");
+}
+
+function yes(){
+  alert("Varsha ❤️ I Love You Forever 💍💖");
+  fireworks();
+}
+
+/* 🎇 Fireworks */
+function fireworks(){
+  for(let i=0;i<30;i++){
+    let f=document.createElement("div");
+    f.innerHTML="✨";
+    f.className="firework";
+    f.style.left=Math.random()*100+"vw";
+    f.style.top=Math.random()*100+"vh";
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1000);
+  }
+}
+
+/* 😄 NO button */
+function moveNo(){
+  no.style.position="absolute";
+  no.style.left=Math.random()*window.innerWidth+"px";
+  no.style.top=Math.random()*window.innerHeight+"px";
+}
+</script>
+
+</body>
+</html>
