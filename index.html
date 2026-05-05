@@ -9,12 +9,11 @@ body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: black;
-  color: white;
   overflow: hidden;
-  text-align: center;
+  color: white;
 }
 
-/* 🌌 Canvas */
+/* 🌌 PARALLAX STARS */
 canvas {
   position: fixed;
   top: 0;
@@ -22,12 +21,13 @@ canvas {
   z-index: -1;
 }
 
-/* Center */
+/* CENTER */
 .center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .hidden { display: none; }
@@ -35,300 +35,270 @@ canvas {
 button {
   padding: 12px 25px;
   font-size: 18px;
-  border-radius: 25px;
+  border-radius: 30px;
   border: none;
-  margin: 10px;
   cursor: pointer;
   background: linear-gradient(45deg, #ff4b5c, #ff6a88);
   color: white;
 }
 
-/* Shayari */
-#shayari {
-  font-size: 24px;
-  min-height: 60px;
-  width: 80%;
+/* ❤️ HEARTBEAT */
+.heartbeat {
+  font-size: 50px;
+  animation: beat 1s infinite;
+}
+@keyframes beat {
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.2);}
 }
 
-/* Hearts */
+/* 💬 CHAT */
+.chat {
+  width: 80%;
+  max-width: 400px;
+}
+.msg {
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  background: #ff4b5c;
+  text-align: left;
+  animation: fade 0.5s;
+}
+@keyframes fade {
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;}
+}
+
+/* 🎮 GAME */
 .heart {
   position: fixed;
   font-size: 25px;
   cursor: pointer;
 }
 
-/* Floating love */
-@keyframes floatUp {
-  to {
-    transform: translateY(-120vh);
-    opacity: 0;
-  }
+/* 📸 MEMORY */
+.memory {
+  filter: blur(10px);
+  transition: 2s;
+}
+.memory.show {
+  filter: blur(0);
 }
 
-/* Fireworks */
-.firework {
-  position: fixed;
-  font-size: 20px;
-  animation: explode 1s linear forwards;
-}
-@keyframes explode {
-  to { transform: translateY(-300px) scale(2); opacity: 0; }
-}
-
-/* Glow proposal */
-#proposal h1 {
+/* 💍 PROPOSAL */
+#proposal {
+  font-size: 35px;
+  text-align: center;
   animation: glow 2s infinite alternate;
 }
 @keyframes glow {
-  from { text-shadow: 0 0 10px #ff4b5c; }
-  to { text-shadow: 0 0 30px #ff6a88; }
+  from { text-shadow: 0 0 10px pink; }
+  to { text-shadow: 0 0 40px red; }
 }
 
-/* Memory images */
-.memory-img {
-  width: 250px;
-  border-radius: 20px;
-  margin-top: 20px;
+/* 🎇 PARTICLES */
+.particle {
+  position: fixed;
+  font-size: 20px;
+  animation: explode 1s forwards;
+}
+@keyframes explode {
+  to { transform: scale(3) translateY(-200px); opacity: 0; }
 }
 </style>
-
 </head>
+
 <body>
 
 <canvas id="stars"></canvas>
 
 <audio id="music" loop>
-  <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3">
+<source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3">
 </audio>
 
-<!-- Intro -->
+<!-- ❤️ INTRO -->
 <div id="intro" class="center">
-  <h1>Hey Ukaizu 💖</h1>
-  <p>This is something from my heart...</p>
-  <button onclick="start()">Start 💫</button>
-  <br>
-  <button onclick="toggleMusic()">🎵 Music</button>
+  <div class="heartbeat">❤️</div>
+  <h2>Hey Ukaizu...</h2>
+  <button onclick="start()">Tap ❤️</button>
 </div>
 
-<!-- Shayari -->
-<div id="letter" class="hidden center">
-  <div id="shayari"></div>
+<!-- 💬 CHAT -->
+<div id="chatBox" class="center hidden">
+  <div id="chat" class="chat"></div>
 </div>
 
-<!-- Mini Game -->
-<div id="miniGame" class="hidden center">
-  <h2>Ukaizu ❤️ Tap 5 Hearts Quickly</h2>
+<!-- 🎮 GAME -->
+<div id="game" class="hidden center">
+  <h2>Catch my love ❤️ (10 sec)</h2>
   <p>Score: <span id="score">0</span></p>
 </div>
 
-<!-- Proposal -->
-<div id="proposal" class="hidden center">
-  <h1>Ukaizu, Will You Marry Me? 💍❤️</h1>
+<!-- 📸 MEMORY -->
+<div id="memory" class="center hidden">
+  <img id="memImg" class="memory" width="300">
+</div>
+
+<!-- 💍 PROPOSAL -->
+<div id="proposalBox" class="center hidden">
+  <div id="proposal">Will You Be Mine Forever? 💍❤️</div>
   <button onclick="yes()">YES 😍</button>
   <button id="no" onmouseover="moveNo()">NO 😢</button>
 </div>
 
 <script>
-/* 🌌 Galaxy Background */
+/* 🌌 PARALLAX STARS */
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-let stars = [];
+let stars=[];
 for(let i=0;i<200;i++){
-  stars.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    size: Math.random()*2,
-    speed: Math.random()*0.5
-  });
+ stars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight});
 }
 
-function animateStars(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+let mouseX=0,mouseY=0;
+document.onmousemove=e=>{
+ mouseX=e.clientX;
+ mouseY=e.clientY;
+};
 
-  stars.forEach(s=>{
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle="white";
-    ctx.fill();
-
-    s.y += s.speed;
-    if(s.y > canvas.height) s.y = 0;
-  });
-
-  requestAnimationFrame(animateStars);
+function animate(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ stars.forEach(s=>{
+   let dx=(mouseX-innerWidth/2)/50;
+   let dy=(mouseY-innerHeight/2)/50;
+   ctx.fillRect(s.x+dx,s.y+dy,2,2);
+ });
+ requestAnimationFrame(animate);
 }
-animateStars();
+animate();
 
-/* 💖 Floating Love */
-setInterval(()=>{
-  let h = document.createElement("div");
-  h.innerHTML = "💖";
-  h.style.position = "fixed";
-  h.style.left = Math.random()*100+"vw";
-  h.style.top = "100vh";
-  h.style.opacity = 0.7;
-  h.style.animation = "floatUp 4s linear forwards";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),4000);
-},400);
-
-/* Start */
+/* START */
 function start(){
-  intro.classList.add("hidden");
-  letter.classList.remove("hidden");
-  music.play();
-  showShayari();
+ intro.classList.add("hidden");
+ chatBox.classList.remove("hidden");
+ music.volume=0;
+ music.play();
+ fadeMusic();
+ showChat();
 }
 
-/* 💬 Typing Effect */
-function typeWriter(text, callback){
-  let index = 0;
-  const el = document.getElementById("shayari");
-  el.innerHTML = "";
-
-  function type(){
-    if(index < text.length){
-      el.innerHTML += text.charAt(index);
-      index++;
-      setTimeout(type, 40);
-    } else {
-      setTimeout(callback, 1200);
-    }
-  }
-  type();
+/* MUSIC FADE */
+function fadeMusic(){
+ let v=0;
+ let i=setInterval(()=>{
+  v+=0.05;
+  music.volume=v;
+  if(v>=1) clearInterval(i);
+ },200);
 }
 
-/* Shayari */
-let shayariList = [
- "Ukaizu... tum meri zindagi ki sabse khoobsurat kahani ho 💖",
- "Tumhari muskaan meri duniya hai 🌸",
- "Har pal bas tumhara saath chahiye 🫶",
- "Tum ho toh sab kuch hai... tum nahi toh kuch bhi nahi ❤️",
- "Aur aaj... main tumse ek baat kehna chahta hoon 💫"
+/* 💬 CHAT STORY */
+let msgs=[
+ "Hey Ukaizu 💖",
+ "Mujhe tumse kuch kehna hai...",
+ "Jab tum hasti ho na...",
+ "Lagta hai duniya perfect hai ❤️",
+ "Aur aaj... ek game kheloge mere saath?"
 ];
 
-let i=0;
-function showShayari(){
-  if(i < shayariList.length){
-    typeWriter(shayariList[i++], showShayari);
-  } else {
-    startMiniGame();
-  }
+let c=0;
+function showChat(){
+ if(c<msgs.length){
+  let m=document.createElement("div");
+  m.className="msg";
+  m.innerText=msgs[c++];
+  document.getElementById("chat").appendChild(m);
+  setTimeout(showChat,1500);
+ } else {
+  setTimeout(startGame,2000);
+ }
 }
 
-/* 🎮 Game */
-let score = 0;
+/* 🎮 GAME */
+let score=0,time=10;
 
-function startMiniGame(){
-  letter.classList.add("hidden");
-  miniGame.classList.remove("hidden");
-  spawnHeart();
+function startGame(){
+ chatBox.classList.add("hidden");
+ game.classList.remove("hidden");
+ spawnHeart();
+
+ let timer=setInterval(()=>{
+  time--;
+  if(time<=0){
+   clearInterval(timer);
+   showMemory();
+  }
+ },1000);
 }
 
 function spawnHeart(){
-  let h = document.createElement("div");
-  h.innerHTML = "❤️";
-  h.className = "heart";
-  h.style.left = Math.random()*90 + "vw";
-  h.style.top = "-50px";
+ let h=document.createElement("div");
+ h.innerHTML="❤️";
+ h.className="heart";
+ h.style.left=Math.random()*90+"vw";
+ h.style.top="-50px";
 
-  let fall = setInterval(()=>{
-    h.style.top = (h.offsetTop + 3) + "px";
-    if(h.offsetTop > window.innerHeight){
-      h.remove();
-      clearInterval(fall);
-      spawnHeart();
-    }
-  },20);
-
-  h.onclick = () => {
-    score++;
-    document.getElementById("score").innerText = score;
-    h.remove();
-    clearInterval(fall);
-
-    if(score >= 5){
-      showMemories();
-    } else {
-      spawnHeart();
-    }
-  };
-
-  document.body.appendChild(h);
-}
-
-/* 📸 Memories */
-function showMemories(){
-  miniGame.classList.add("hidden");
-
-  let images = [
-    "https://via.placeholder.com/250?text=Memory+1",
-    "https://via.placeholder.com/250?text=Memory+2",
-    "https://via.placeholder.com/250?text=Memory+3"
-  ];
-
-  let img = document.createElement("img");
-  img.className = "memory-img";
-  document.body.appendChild(img);
-
-  let idx = 0;
-  function next(){
-    if(idx < images.length){
-      img.src = images[idx++];
-      setTimeout(next, 2000);
-    } else {
-      img.remove();
-      showProposal();
-    }
+ let fall=setInterval(()=>{
+  h.style.top=(h.offsetTop+5)+"px";
+  if(h.offsetTop>innerHeight){
+   h.remove();
+   clearInterval(fall);
+   spawnHeart();
   }
-  next();
+ },20);
+
+ h.onclick=()=>{
+  score++;
+  document.getElementById("score").innerText=score;
+  h.remove();
+  clearInterval(fall);
+  spawnHeart();
+ };
+
+ document.body.appendChild(h);
 }
 
-/* 💍 Proposal */
+/* 📸 MEMORY */
+function showMemory(){
+ game.classList.add("hidden");
+ memory.classList.remove("hidden");
+
+ let img=document.getElementById("memImg");
+ img.src="https://via.placeholder.com/300?text=Our+Memory";
+
+ setTimeout(()=>img.classList.add("show"),500);
+ setTimeout(showProposal,3000);
+}
+
+/* 💍 PROPOSAL */
 function showProposal(){
-  proposal.classList.remove("hidden");
+ memory.classList.add("hidden");
+ proposalBox.classList.remove("hidden");
 }
 
+/* YES */
 function yes(){
-  alert("Ukaizu ❤️ I Love You Forever 💍💖");
-  fireworks();
+ for(let i=0;i<40;i++){
+  let p=document.createElement("div");
+  p.innerHTML="✨";
+  p.className="particle";
+  p.style.left=Math.random()*100+"vw";
+  p.style.top=Math.random()*100+"vh";
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),1000);
+ }
+ alert("I Love You Forever ❤️");
 }
 
-/* 🎇 Fireworks */
-function fireworks(){
-  for(let i=0;i<30;i++){
-    let f=document.createElement("div");
-    f.innerHTML="✨";
-    f.className="firework";
-    f.style.left=Math.random()*100+"vw";
-    f.style.top=Math.random()*100+"vh";
-    document.body.appendChild(f);
-    setTimeout(()=>f.remove(),1000);
-  }
-}
-
-/* 😈 NO Button */
+/* NO ESCAPE 😈 */
 function moveNo(){
-  const messages = [
-    "Soch lo 😢",
-    "Pakka? 🥺",
-    "Ek aur chance 😭",
-    "Mat bolo na 😭❤️"
-  ];
-  alert(messages[Math.floor(Math.random()*messages.length)]);
-
-  no.style.position="absolute";
-  no.style.left=Math.random()*window.innerWidth+"px";
-  no.style.top=Math.random()*window.innerHeight+"px";
-}
-
-/* 🎵 Music */
-function toggleMusic(){
-  if(music.paused) music.play();
-  else music.pause();
+ no.style.position="absolute";
+ no.style.left=Math.random()*innerWidth+"px";
+ no.style.top=Math.random()*innerHeight+"px";
 }
 </script>
 
