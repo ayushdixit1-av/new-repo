@@ -14,7 +14,7 @@ body {
   text-align: center;
 }
 
-/* 🌌 Stars */
+/* 🌌 Canvas */
 canvas {
   position: fixed;
   top: 0;
@@ -50,11 +50,19 @@ button {
   width: 80%;
 }
 
-/* Mini Game */
+/* Hearts */
 .heart {
   position: fixed;
   font-size: 25px;
   cursor: pointer;
+}
+
+/* Floating love */
+@keyframes floatUp {
+  to {
+    transform: translateY(-120vh);
+    opacity: 0;
+  }
 }
 
 /* Fireworks */
@@ -65,6 +73,22 @@ button {
 }
 @keyframes explode {
   to { transform: translateY(-300px) scale(2); opacity: 0; }
+}
+
+/* Glow proposal */
+#proposal h1 {
+  animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 10px #ff4b5c; }
+  to { text-shadow: 0 0 30px #ff6a88; }
+}
+
+/* Memory images */
+.memory-img {
+  width: 250px;
+  border-radius: 20px;
+  margin-top: 20px;
 }
 </style>
 
@@ -82,6 +106,8 @@ button {
   <h1>Hey Ukaizu 💖</h1>
   <p>This is something from my heart...</p>
   <button onclick="start()">Start 💫</button>
+  <br>
+  <button onclick="toggleMusic()">🎵 Music</button>
 </div>
 
 <!-- Shayari -->
@@ -97,27 +123,57 @@ button {
 
 <!-- Proposal -->
 <div id="proposal" class="hidden center">
-  <h1>Ukaizu, Will You Marry me ? 💍❤️</h1>
+  <h1>Ukaizu, Will You Marry Me? 💍❤️</h1>
   <button onclick="yes()">YES 😍</button>
   <button id="no" onmouseover="moveNo()">NO 😢</button>
 </div>
 
 <script>
-/* 🌌 Stars */
+/* 🌌 Galaxy Background */
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let stars = [];
-for(let i=0;i<150;i++){
-  stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height});
+for(let i=0;i<200;i++){
+  stars.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    size: Math.random()*2,
+    speed: Math.random()*0.5
+  });
 }
-setInterval(()=>{
+
+function animateStars(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="white";
-  stars.forEach(s=>ctx.fillRect(s.x,s.y,2,2));
-},50);
+
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+
+    s.y += s.speed;
+    if(s.y > canvas.height) s.y = 0;
+  });
+
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+/* 💖 Floating Love */
+setInterval(()=>{
+  let h = document.createElement("div");
+  h.innerHTML = "💖";
+  h.style.position = "fixed";
+  h.style.left = Math.random()*100+"vw";
+  h.style.top = "100vh";
+  h.style.opacity = 0.7;
+  h.style.animation = "floatUp 4s linear forwards";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),4000);
+},400);
 
 /* Start */
 function start(){
@@ -127,7 +183,25 @@ function start(){
   showShayari();
 }
 
-/* 💌 Shayari */
+/* 💬 Typing Effect */
+function typeWriter(text, callback){
+  let index = 0;
+  const el = document.getElementById("shayari");
+  el.innerHTML = "";
+
+  function type(){
+    if(index < text.length){
+      el.innerHTML += text.charAt(index);
+      index++;
+      setTimeout(type, 40);
+    } else {
+      setTimeout(callback, 1200);
+    }
+  }
+  type();
+}
+
+/* Shayari */
 let shayariList = [
  "Ukaizu... tum meri zindagi ki sabse khoobsurat kahani ho 💖",
  "Tumhari muskaan meri duniya hai 🌸",
@@ -139,15 +213,15 @@ let shayariList = [
 let i=0;
 function showShayari(){
   if(i < shayariList.length){
-    document.getElementById("shayari").innerText = shayariList[i++];
-    setTimeout(showShayari, 2500);
+    typeWriter(shayariList[i++], showShayari);
   } else {
     startMiniGame();
   }
 }
 
-/* 🎮 Small Game */
+/* 🎮 Game */
 let score = 0;
+
 function startMiniGame(){
   letter.classList.add("hidden");
   miniGame.classList.remove("hidden");
@@ -159,14 +233,25 @@ function spawnHeart(){
   h.innerHTML = "❤️";
   h.className = "heart";
   h.style.left = Math.random()*90 + "vw";
-  h.style.top = Math.random()*90 + "vh";
+  h.style.top = "-50px";
+
+  let fall = setInterval(()=>{
+    h.style.top = (h.offsetTop + 3) + "px";
+    if(h.offsetTop > window.innerHeight){
+      h.remove();
+      clearInterval(fall);
+      spawnHeart();
+    }
+  },20);
 
   h.onclick = () => {
     score++;
     document.getElementById("score").innerText = score;
     h.remove();
+    clearInterval(fall);
+
     if(score >= 5){
-      showProposal();
+      showMemories();
     } else {
       spawnHeart();
     }
@@ -175,9 +260,35 @@ function spawnHeart(){
   document.body.appendChild(h);
 }
 
+/* 📸 Memories */
+function showMemories(){
+  miniGame.classList.add("hidden");
+
+  let images = [
+    "https://via.placeholder.com/250?text=Memory+1",
+    "https://via.placeholder.com/250?text=Memory+2",
+    "https://via.placeholder.com/250?text=Memory+3"
+  ];
+
+  let img = document.createElement("img");
+  img.className = "memory-img";
+  document.body.appendChild(img);
+
+  let idx = 0;
+  function next(){
+    if(idx < images.length){
+      img.src = images[idx++];
+      setTimeout(next, 2000);
+    } else {
+      img.remove();
+      showProposal();
+    }
+  }
+  next();
+}
+
 /* 💍 Proposal */
 function showProposal(){
-  miniGame.classList.add("hidden");
   proposal.classList.remove("hidden");
 }
 
@@ -199,11 +310,25 @@ function fireworks(){
   }
 }
 
-/* 😄 NO button */
+/* 😈 NO Button */
 function moveNo(){
+  const messages = [
+    "Soch lo 😢",
+    "Pakka? 🥺",
+    "Ek aur chance 😭",
+    "Mat bolo na 😭❤️"
+  ];
+  alert(messages[Math.floor(Math.random()*messages.length)]);
+
   no.style.position="absolute";
   no.style.left=Math.random()*window.innerWidth+"px";
   no.style.top=Math.random()*window.innerHeight+"px";
+}
+
+/* 🎵 Music */
+function toggleMusic(){
+  if(music.paused) music.play();
+  else music.pause();
 }
 </script>
 
